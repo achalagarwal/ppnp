@@ -6,10 +6,14 @@ from .utils import sparse_matrix_to_tensor, sparse_dropout
 
 sparse_dot = tf.sparse_tensor_dense_matmul
 
-
+# The normalised laplacian matrix
+# https://people.orie.cornell.edu/dpw/orie6334/Fall2016/lecture7.pdf
 def calc_A_hat(adj_matrix: sp.spmatrix) -> sp.spmatrix:
     nnodes = adj_matrix.shape[0]
     A = adj_matrix + sp.eye(nnodes)
+    # calculate the sum along columns
+    # this means that we reduce the NxN matrix into Nx1
+    # .A1 converts the reduced matrix (nnodes x 1) to a vector
     D_vec = np.sum(A, axis=1).A1
     D_vec_invsqrt_corr = 1 / np.sqrt(D_vec)
     D_invsqrt_corr = sp.diags(D_vec_invsqrt_corr)
@@ -19,7 +23,9 @@ def calc_A_hat(adj_matrix: sp.spmatrix) -> sp.spmatrix:
 def calc_ppr_exact(adj_matrix: sp.spmatrix, alpha: float) -> np.ndarray:
     nnodes = adj_matrix.shape[0]
     M = calc_A_hat(adj_matrix)
+    # M is the normalised Laplacian matrix
     A_inner = sp.eye(nnodes) - (1 - alpha) * M
+
     return alpha * np.linalg.inv(A_inner.toarray())
 
 

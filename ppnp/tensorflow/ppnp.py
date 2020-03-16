@@ -27,6 +27,8 @@ class PPNP(Model):
         if isinstance(X, tf.SparseTensor):
             Z_inner = sparse_dot(X_drop, W)
         else:
+
+            # @ is for matrix multiplication!
             Z_inner = X_drop @ W
         return activation(Z_inner)
 
@@ -55,6 +57,7 @@ class PPNP(Model):
                         keep_prob=keep_prob_current))
 
         # Last layer
+        # classification layer
         with tf.variable_scope(f'layer_{len(self.hiddenunits)}'):
             self.logits_local = self._build_layer(
                     self.Zs[-1], self.nclasses,

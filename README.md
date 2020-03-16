@@ -1,3 +1,7 @@
+# Achal
+
+activate tensorflow environment
+
 # PPNP and APPNP
 
 <p align="center">
