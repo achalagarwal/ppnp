@@ -36,8 +36,19 @@ class PPRExact:
 
     def build_model(self, Z: tf.Tensor, keep_prob: float) -> tf.Tensor:
         with tf.variable_scope(f'Propagation'):
+            
+            # is this the matrix with which we have to multiply 
+            # for propagating our labels to the neighbours?
+            
             ppr_mat_tf = tf.constant(self.ppr_mat, dtype=tf.float32)
+
+            # this random dropping in the ppr can be the random features
+            # that makes our neural network stronger
+
             ppr_drop = tf.nn.dropout(ppr_mat_tf, keep_prob)
+
+            # check how we get a transition matrix to compute pagerank's
+            # next iteration
             return ppr_drop @ Z
 
 
@@ -55,5 +66,8 @@ class PPRPowerIteration:
             Zs_prop = Z
             for _ in range(self.niter):
                 A_drop = sparse_dropout(A_hat_tf, keep_prob)
+
+                # wtf, why do we have self.alpha*Z inside the loop?
                 Zs_prop = sparse_dot(A_drop, Zs_prop) + self.alpha * Z
             return Zs_prop
+

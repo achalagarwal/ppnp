@@ -22,12 +22,21 @@ class Model:
         self.step = tf.train.create_global_step()
 
     def _calc_cross_entropy(self):
+
+        # predicted labels
         logits_subset = tf.gather(self.logits, self.idx, axis=0)
+        
+        # true labels
         labels_subset = tf.gather(self.labels, self.idx, axis=0)
+
+        # compute cross entropy loss
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
                 labels=labels_subset, logits=logits_subset,
                 name='cross_entropy')
+        
+        # mean across all classes
         cross_entropy_mean = tf.reduce_mean(cross_entropy)
+        
         tf.summary.scalar('cross_entropy_mean', cross_entropy_mean)
         return cross_entropy_mean
 
@@ -70,9 +79,16 @@ class Model:
 
     def _build_loss(self, reg_lambda: float):
         with tf.variable_scope('Loss'):
+
+            # scalar value
             cross_entropy_mean = self._calc_cross_entropy()
+            
+            # another reduced to scalar for all the weights
+            # self.reg_vars
             l2_reg = tf.add_n([
                     tf.nn.l2_loss(weight) for weight in self.reg_vars])
+            
+            # all the losses are added
             self.loss = cross_entropy_mean + reg_lambda * l2_reg
             tf.summary.scalar('l2_reg', l2_reg)
             tf.summary.scalar('loss', self.loss)
